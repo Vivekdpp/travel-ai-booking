@@ -87,7 +87,7 @@ class BaseAgent(ABC):
             
             # Call Claude with tool definitions
             response = self.client.messages.create(
-                model="claude-3-5-sonnet-20241022",
+                model="claude-sonnet-4-5",
                 max_tokens=4096,
                 system=system_prompt,
                 tools=self.tools if self.tools else None,

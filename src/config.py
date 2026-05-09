@@ -1,6 +1,5 @@
 """
 Configuration module for TravelAI Booking System
-Loads settings from environment variables
 """
 
 import os
@@ -45,17 +44,7 @@ class Settings(BaseSettings):
     class Config:
         env_file = ".env"
         case_sensitive = False
-    
-    def __init__(self, **data):
-        super().__init__(**data)
-        # Validate API key
-        if not self.anthropic_api_key:
-            raise ValueError("ANTHROPIC_API_KEY environment variable not set")
 
 
 # Load settings
 settings = Settings()
-
-# Validate database URL
-if not settings.database_url:
-    raise ValueError("DATABASE_URL environment variable not set")

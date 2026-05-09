@@ -19,7 +19,7 @@ sentence-transformers==2.2.2
 
 # Async & Concurrency
 aiohttp==3.9.1
-asyncio-contextmanager==1.0.0
+asyncio-contextmanager==1.0.1
 
 # Data Processing
 pydantic-core==2.14.1

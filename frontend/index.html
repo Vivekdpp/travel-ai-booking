@@ -1,0 +1,1050 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>TravelAI — Intelligent Booking Assistant</title>
+<link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=DM+Sans:ital,wght@0,300;0,400;0,500;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --rbc-blue: #003168;
+    --rbc-gold: #FFCD00;
+    --rbc-light: #E8F0FB;
+    --agent-search: #0057B8;
+    --agent-booking: #00843D;
+    --agent-itinerary: #7B2D8B;
+    --agent-recommendation: #C8102E;
+    --bg: #F0F4FA;
+    --surface: #FFFFFF;
+    --border: #D6E0F0;
+    --text: #0A1628;
+    --text-muted: #5A6A82;
+    --user-bubble: #003168;
+    --ai-bubble: #FFFFFF;
+    --shadow: 0 4px 24px rgba(0,49,104,0.10);
+    --shadow-lg: 0 8px 40px rgba(0,49,104,0.16);
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'DM Sans', sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    height: 100vh;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  header {
+    background: var(--rbc-blue);
+    padding: 0 32px;
+    height: 64px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 16px rgba(0,0,0,0.2);
+    flex-shrink: 0;
+    z-index: 10;
+  }
+
+  .logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+  }
+
+  .logo-icon {
+    width: 36px;
+    height: 36px;
+    background: var(--rbc-gold);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 18px;
+  }
+
+  .logo-text {
+    font-family: 'Syne', sans-serif;
+    font-weight: 800;
+    font-size: 20px;
+    color: #fff;
+    letter-spacing: -0.3px;
+  }
+
+  .logo-text span {
+    color: var(--rbc-gold);
+  }
+
+  .header-right {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+
+  .status-badge {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: rgba(255,255,255,0.1);
+    border: 1px solid rgba(255,255,255,0.2);
+    border-radius: 20px;
+    padding: 4px 12px;
+    font-size: 12px;
+    color: rgba(255,255,255,0.85);
+    font-weight: 500;
+  }
+
+  .status-dot {
+    width: 7px;
+    height: 7px;
+    border-radius: 50%;
+    background: #4ade80;
+    animation: pulse 2s infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.4; }
+  }
+
+  .rbc-tag {
+    font-size: 11px;
+    color: var(--rbc-gold);
+    font-family: 'Syne', sans-serif;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    opacity: 0.8;
+  }
+
+  /* ── Layout ── */
+  .app-body {
+    display: flex;
+    flex: 1;
+    overflow: hidden;
+  }
+
+  /* ── Sidebar ── */
+  .sidebar {
+    width: 280px;
+    background: var(--surface);
+    border-right: 1px solid var(--border);
+    display: flex;
+    flex-direction: column;
+    padding: 24px 0;
+    flex-shrink: 0;
+  }
+
+  .sidebar-section {
+    padding: 0 20px;
+    margin-bottom: 28px;
+  }
+
+  .sidebar-label {
+    font-size: 10px;
+    font-weight: 700;
+    letter-spacing: 1.5px;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    padding-left: 4px;
+  }
+
+  .agent-card {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 10px 12px;
+    border-radius: 10px;
+    margin-bottom: 4px;
+    cursor: pointer;
+    transition: all 0.15s;
+    border: 1px solid transparent;
+  }
+
+  .agent-card:hover {
+    background: var(--rbc-light);
+    border-color: var(--border);
+  }
+
+  .agent-card.active {
+    background: var(--rbc-light);
+    border-color: var(--rbc-blue);
+  }
+
+  .agent-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+  }
+
+  .agent-info { flex: 1; }
+
+  .agent-name {
+    font-size: 13px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  .agent-desc {
+    font-size: 11px;
+    color: var(--text-muted);
+    margin-top: 1px;
+  }
+
+  .agent-count {
+    font-size: 11px;
+    font-weight: 700;
+    color: var(--text-muted);
+    background: var(--bg);
+    padding: 2px 7px;
+    border-radius: 10px;
+  }
+
+  .divider {
+    height: 1px;
+    background: var(--border);
+    margin: 0 20px 24px;
+  }
+
+  .quick-prompts {
+    padding: 0 20px;
+    flex: 1;
+  }
+
+  .quick-btn {
+    display: block;
+    width: 100%;
+    text-align: left;
+    padding: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid var(--border);
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 12px;
+    color: var(--text-muted);
+    cursor: pointer;
+    margin-bottom: 6px;
+    transition: all 0.15s;
+    line-height: 1.4;
+  }
+
+  .quick-btn:hover {
+    background: var(--rbc-light);
+    border-color: var(--rbc-blue);
+    color: var(--rbc-blue);
+  }
+
+  .quick-btn .q-icon {
+    display: block;
+    font-size: 16px;
+    margin-bottom: 3px;
+  }
+
+  /* ── Chat Area ── */
+  .chat-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+  }
+
+  .chat-header {
+    padding: 16px 32px;
+    border-bottom: 1px solid var(--border);
+    background: var(--surface);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .chat-title {
+    font-family: 'Syne', sans-serif;
+    font-weight: 700;
+    font-size: 17px;
+    color: var(--text);
+  }
+
+  .chat-subtitle {
+    font-size: 12px;
+    color: var(--text-muted);
+    margin-top: 2px;
+  }
+
+  .user-pill {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: var(--rbc-light);
+    border: 1px solid var(--border);
+    border-radius: 20px;
+    padding: 6px 14px 6px 8px;
+  }
+
+  .user-avatar {
+    width: 26px;
+    height: 26px;
+    border-radius: 50%;
+    background: var(--rbc-blue);
+    color: white;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    font-weight: 700;
+  }
+
+  .user-name-small {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  /* ── Messages ── */
+  .messages {
+    flex: 1;
+    overflow-y: auto;
+    padding: 32px;
+    display: flex;
+    flex-direction: column;
+    gap: 24px;
+    scroll-behavior: smooth;
+  }
+
+  .messages::-webkit-scrollbar { width: 4px; }
+  .messages::-webkit-scrollbar-track { background: transparent; }
+  .messages::-webkit-scrollbar-thumb { background: var(--border); border-radius: 2px; }
+
+  /* Welcome state */
+  .welcome {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    flex: 1;
+    text-align: center;
+    padding: 40px;
+    gap: 16px;
+  }
+
+  .welcome-icon {
+    width: 72px;
+    height: 72px;
+    background: var(--rbc-blue);
+    border-radius: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 36px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .welcome h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 26px;
+    font-weight: 800;
+    color: var(--text);
+  }
+
+  .welcome p {
+    font-size: 15px;
+    color: var(--text-muted);
+    max-width: 420px;
+    line-height: 1.6;
+  }
+
+  .welcome-chips {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    justify-content: center;
+    margin-top: 8px;
+  }
+
+  .chip {
+    padding: 8px 16px;
+    border-radius: 20px;
+    border: 1px solid var(--border);
+    background: var(--surface);
+    font-size: 13px;
+    color: var(--text-muted);
+    cursor: pointer;
+    transition: all 0.15s;
+    font-family: 'DM Sans', sans-serif;
+  }
+
+  .chip:hover {
+    background: var(--rbc-blue);
+    color: white;
+    border-color: var(--rbc-blue);
+    transform: translateY(-1px);
+    box-shadow: var(--shadow);
+  }
+
+  /* Message bubbles */
+  .message-row {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .message-row.user {
+    flex-direction: row-reverse;
+  }
+
+  .msg-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 10px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 16px;
+    flex-shrink: 0;
+    font-weight: 700;
+    font-family: 'Syne', sans-serif;
+  }
+
+  .msg-avatar.ai {
+    background: var(--rbc-blue);
+    color: var(--rbc-gold);
+    font-size: 18px;
+  }
+
+  .msg-avatar.user {
+    background: var(--rbc-gold);
+    color: var(--rbc-blue);
+    font-size: 13px;
+  }
+
+  .msg-content { max-width: 68%; }
+
+  .msg-meta {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 6px;
+  }
+
+  .message-row.user .msg-meta { flex-direction: row-reverse; }
+
+  .msg-sender {
+    font-size: 12px;
+    font-weight: 600;
+    color: var(--text-muted);
+  }
+
+  .agent-badge {
+    font-size: 10px;
+    font-weight: 700;
+    padding: 2px 8px;
+    border-radius: 10px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  .agent-badge.search { background: #E8F2FF; color: var(--agent-search); }
+  .agent-badge.booking { background: #E8F8EF; color: var(--agent-booking); }
+  .agent-badge.itinerary { background: #F5EBF9; color: var(--agent-itinerary); }
+  .agent-badge.recommendation { background: #FDECEA; color: var(--agent-recommendation); }
+
+  .msg-time {
+    font-size: 10px;
+    color: var(--text-muted);
+    opacity: 0.7;
+  }
+
+  .bubble {
+    padding: 14px 18px;
+    border-radius: 16px;
+    font-size: 14px;
+    line-height: 1.65;
+    box-shadow: var(--shadow);
+  }
+
+  .bubble.ai {
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    border-top-left-radius: 4px;
+    color: var(--text);
+  }
+
+  .bubble.user {
+    background: var(--user-bubble);
+    color: white;
+    border-top-right-radius: 4px;
+  }
+
+  /* Markdown-like formatting */
+  .bubble h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    margin: 12px 0 8px;
+    color: var(--rbc-blue);
+  }
+
+  .bubble h2:first-child { margin-top: 0; }
+
+  .bubble strong { font-weight: 600; }
+
+  .bubble hr {
+    border: none;
+    border-top: 1px solid var(--border);
+    margin: 10px 0;
+  }
+
+  /* Typing indicator */
+  .typing-row {
+    display: flex;
+    gap: 12px;
+    animation: fadeUp 0.3s ease;
+  }
+
+  .typing-bubble {
+    background: var(--ai-bubble);
+    border: 1px solid var(--border);
+    border-radius: 16px;
+    border-top-left-radius: 4px;
+    padding: 14px 18px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    box-shadow: var(--shadow);
+  }
+
+  .typing-dot {
+    width: 7px;
+    height: 7px;
+    background: var(--rbc-blue);
+    border-radius: 50%;
+    animation: typingBounce 1.2s infinite;
+    opacity: 0.4;
+  }
+
+  .typing-dot:nth-child(2) { animation-delay: 0.2s; }
+  .typing-dot:nth-child(3) { animation-delay: 0.4s; }
+
+  @keyframes typingBounce {
+    0%, 100% { transform: translateY(0); opacity: 0.4; }
+    50% { transform: translateY(-5px); opacity: 1; }
+  }
+
+  /* ── Input Area ── */
+  .input-area {
+    padding: 20px 32px 24px;
+    background: var(--surface);
+    border-top: 1px solid var(--border);
+  }
+
+  .input-wrapper {
+    display: flex;
+    gap: 12px;
+    align-items: flex-end;
+    background: var(--bg);
+    border: 2px solid var(--border);
+    border-radius: 16px;
+    padding: 12px 12px 12px 20px;
+    transition: all 0.2s;
+  }
+
+  .input-wrapper:focus-within {
+    border-color: var(--rbc-blue);
+    background: var(--surface);
+    box-shadow: 0 0 0 4px rgba(0,49,104,0.08);
+  }
+
+  #messageInput {
+    flex: 1;
+    border: none;
+    background: transparent;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    resize: none;
+    outline: none;
+    min-height: 22px;
+    max-height: 120px;
+    line-height: 1.5;
+  }
+
+  #messageInput::placeholder { color: var(--text-muted); }
+
+  .send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 10px;
+    background: var(--rbc-blue);
+    border: none;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+    flex-shrink: 0;
+  }
+
+  .send-btn:hover:not(:disabled) {
+    background: #004fa3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(0,49,104,0.3);
+  }
+
+  .send-btn:disabled {
+    opacity: 0.4;
+    cursor: not-allowed;
+  }
+
+  .send-btn svg { width: 18px; height: 18px; fill: white; }
+
+  .input-hint {
+    font-size: 11px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 10px;
+  }
+
+  .input-hint kbd {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 1px 5px;
+    font-size: 10px;
+    font-family: monospace;
+  }
+
+  /* Setup modal */
+  .modal-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.5);
+    backdrop-filter: blur(4px);
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .modal {
+    background: var(--surface);
+    border-radius: 20px;
+    padding: 36px;
+    width: 420px;
+    box-shadow: var(--shadow-lg);
+  }
+
+  .modal h2 {
+    font-family: 'Syne', sans-serif;
+    font-size: 22px;
+    font-weight: 800;
+    margin-bottom: 6px;
+  }
+
+  .modal p {
+    color: var(--text-muted);
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 24px;
+  }
+
+  .modal label {
+    display: block;
+    font-size: 12px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+    color: var(--text-muted);
+    margin-bottom: 6px;
+    text-transform: uppercase;
+  }
+
+  .modal input {
+    width: 100%;
+    padding: 12px 16px;
+    border: 2px solid var(--border);
+    border-radius: 10px;
+    font-family: 'DM Sans', sans-serif;
+    font-size: 14px;
+    color: var(--text);
+    outline: none;
+    transition: all 0.2s;
+    margin-bottom: 20px;
+  }
+
+  .modal input:focus {
+    border-color: var(--rbc-blue);
+    box-shadow: 0 0 0 4px rgba(0,49,104,0.08);
+  }
+
+  .modal-btn {
+    width: 100%;
+    padding: 14px;
+    background: var(--rbc-blue);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: 'Syne', sans-serif;
+    font-size: 15px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+  }
+
+  .modal-btn:hover {
+    background: #004fa3;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 16px rgba(0,49,104,0.3);
+  }
+
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+
+<!-- Setup Modal -->
+<div class="modal-overlay" id="setupModal">
+  <div class="modal">
+    <h2>✈️ Welcome to TravelAI</h2>
+    <p>Multi-agent AI booking system powered by Claude. Enter your name to get started.</p>
+    <label>Your Name</label>
+    <input type="text" id="nameInput" placeholder="e.g. Vivek Patel" />
+    <label>Email</label>
+    <input type="email" id="emailInput" placeholder="e.g. vivek@example.com" />
+    <button class="modal-btn" onclick="setupUser()">Start Planning →</button>
+  </div>
+</div>
+
+<!-- Header -->
+<header>
+  <div class="logo">
+    <div class="logo-icon">✈️</div>
+    <div class="logo-text">Travel<span>AI</span></div>
+  </div>
+  <div class="header-right">
+    <div class="rbc-tag">RBC Borealis</div>
+    <div class="status-badge">
+      <div class="status-dot"></div>
+      4 Agents Active
+    </div>
+  </div>
+</header>
+
+<!-- App Body -->
+<div class="app-body">
+
+  <!-- Sidebar -->
+  <aside class="sidebar">
+    <div class="sidebar-section">
+      <div class="sidebar-label">Active Agents</div>
+      <div class="agent-card active" id="agent-search">
+        <div class="agent-dot" style="background: var(--agent-search)"></div>
+        <div class="agent-info">
+          <div class="agent-name">Search Agent</div>
+          <div class="agent-desc">Flights, hotels, activities</div>
+        </div>
+        <div class="agent-count" id="count-search">0</div>
+      </div>
+      <div class="agent-card" id="agent-booking">
+        <div class="agent-dot" style="background: var(--agent-booking)"></div>
+        <div class="agent-info">
+          <div class="agent-name">Booking Agent</div>
+          <div class="agent-desc">Reservations & payments</div>
+        </div>
+        <div class="agent-count" id="count-booking">0</div>
+      </div>
+      <div class="agent-card" id="agent-itinerary">
+        <div class="agent-dot" style="background: var(--agent-itinerary)"></div>
+        <div class="agent-info">
+          <div class="agent-name">Itinerary Agent</div>
+          <div class="agent-desc">Trip planning & schedules</div>
+        </div>
+        <div class="agent-count" id="count-itinerary">0</div>
+      </div>
+      <div class="agent-card" id="agent-recommendation">
+        <div class="agent-dot" style="background: var(--agent-recommendation)"></div>
+        <div class="agent-info">
+          <div class="agent-name">Recommendation</div>
+          <div class="agent-desc">Personalized suggestions</div>
+        </div>
+        <div class="agent-count" id="count-recommendation">0</div>
+      </div>
+    </div>
+
+    <div class="divider"></div>
+
+    <div class="quick-prompts">
+      <div class="sidebar-label">Quick Prompts</div>
+      <button class="quick-btn" onclick="sendQuick('Show me flights from Toronto to New York on April 15')">
+        <span class="q-icon">✈️</span>
+        Search flights Toronto → NYC
+      </button>
+      <button class="quick-btn" onclick="sendQuick('Find hotels in New York from April 15 to April 20')">
+        <span class="q-icon">🏨</span>
+        Find hotels in New York
+      </button>
+      <button class="quick-btn" onclick="sendQuick('Recommend a beach destination for 5 days under $2000')">
+        <span class="q-icon">🏖️</span>
+        Beach destination ideas
+      </button>
+      <button class="quick-btn" onclick="sendQuick('Create an itinerary for my New York trip April 15-20')">
+        <span class="q-icon">📅</span>
+        Plan NYC itinerary
+      </button>
+      <button class="quick-btn" onclick="sendQuick('What activities are available in New York?')">
+        <span class="q-icon">🗽</span>
+        NYC activities
+      </button>
+    </div>
+  </aside>
+
+  <!-- Chat Area -->
+  <main class="chat-area">
+    <div class="chat-header">
+      <div>
+        <div class="chat-title">AI Travel Assistant</div>
+        <div class="chat-subtitle">Agentic AI · Multi-agent orchestration · Tool use</div>
+      </div>
+      <div class="user-pill">
+        <div class="user-avatar" id="userAvatarSmall">VP</div>
+        <div class="user-name-small" id="userNameSmall">Vivek Patel</div>
+      </div>
+    </div>
+
+    <!-- Messages -->
+    <div class="messages" id="messages">
+      <div class="welcome" id="welcomeState">
+        <div class="welcome-icon">✈️</div>
+        <h2>Where would you like to go?</h2>
+        <p>I'm your intelligent travel assistant powered by 4 specialized AI agents. Ask me to search flights, book hotels, plan itineraries, or get destination recommendations.</p>
+        <div class="welcome-chips">
+          <div class="chip" onclick="sendQuick('Show me flights from Toronto to New York on April 15')">✈️ Search flights</div>
+          <div class="chip" onclick="sendQuick('Find hotels in Paris for next week')">🏨 Find hotels</div>
+          <div class="chip" onclick="sendQuick('Recommend a relaxing vacation destination')">🌴 Get recommendations</div>
+          <div class="chip" onclick="sendQuick('Plan a 5-day trip to Tokyo')">📅 Plan a trip</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Input -->
+    <div class="input-area">
+      <div class="input-wrapper">
+        <textarea
+          id="messageInput"
+          placeholder="Ask anything about travel..."
+          rows="1"
+          onkeydown="handleKey(event)"
+          oninput="autoResize(this)"
+        ></textarea>
+        <button class="send-btn" id="sendBtn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24"><path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z"/></svg>
+        </button>
+      </div>
+      <div class="input-hint">Press <kbd>Enter</kbd> to send · <kbd>Shift+Enter</kbd> for new line</div>
+    </div>
+  </main>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:8000';
+  let userId = null;
+  let userName = '';
+  let agentCounts = { search: 0, booking: 0, itinerary: 0, recommendation: 0 };
+
+  // Auto-resize textarea
+  function autoResize(el) {
+    el.style.height = 'auto';
+    el.style.height = Math.min(el.scrollHeight, 120) + 'px';
+  }
+
+  // Handle Enter key
+  function handleKey(e) {
+    if (e.key === 'Enter' && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  // Setup user
+  async function setupUser() {
+    const name = document.getElementById('nameInput').value.trim();
+    const email = document.getElementById('emailInput').value.trim();
+    if (!name || !email) { alert('Please enter your name and email'); return; }
+
+    try {
+      const res = await fetch(`${API_BASE}/api/users`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, name })
+      });
+      const data = await res.json();
+      userId = data.user_id;
+      userName = name;
+
+      // Update UI
+      const initials = name.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2);
+      document.getElementById('userAvatarSmall').textContent = initials;
+      document.getElementById('userNameSmall').textContent = name;
+      document.getElementById('setupModal').classList.add('hidden');
+    } catch (e) {
+      alert('Could not connect to API. Make sure server is running on localhost:8000');
+    }
+  }
+
+  // Send quick prompt
+  function sendQuick(text) {
+    document.getElementById('messageInput').value = text;
+    sendMessage();
+  }
+
+  // Format markdown-like response
+  function formatResponse(text) {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/^## (.*)/gm, '<h2>$1</h2>')
+      .replace(/^---$/gm, '<hr>')
+      .replace(/\n/g, '<br>');
+  }
+
+  // Get time
+  function getTime() {
+    return new Date().toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  // Add message to UI
+  function addMessage(role, content, agent = null) {
+    const messagesEl = document.getElementById('messages');
+
+    // Hide welcome state
+    const welcome = document.getElementById('welcomeState');
+    if (welcome) welcome.classList.add('hidden');
+
+    const row = document.createElement('div');
+    row.className = `message-row ${role}`;
+
+    const initials = userName.split(' ').map(n => n[0]).join('').toUpperCase().slice(0, 2) || 'U';
+
+    if (role === 'user') {
+      row.innerHTML = `
+        <div class="msg-avatar user">${initials}</div>
+        <div class="msg-content">
+          <div class="msg-meta">
+            <span class="msg-sender">${userName || 'You'}</span>
+            <span class="msg-time">${getTime()}</span>
+          </div>
+          <div class="bubble user">${content}</div>
+        </div>
+      `;
+    } else {
+      const agentBadge = agent
+        ? `<span class="agent-badge ${agent}">${agent} agent</span>`
+        : '';
+      row.innerHTML = `
+        <div class="msg-avatar ai">✈</div>
+        <div class="msg-content">
+          <div class="msg-meta">
+            <span class="msg-sender">TravelAI</span>
+            ${agentBadge}
+            <span class="msg-time">${getTime()}</span>
+          </div>
+          <div class="bubble ai">${formatResponse(content)}</div>
+        </div>
+      `;
+    }
+
+    messagesEl.appendChild(row);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+    return row;
+  }
+
+  // Show typing indicator
+  function showTyping() {
+    const messagesEl = document.getElementById('messages');
+    const typing = document.createElement('div');
+    typing.className = 'typing-row';
+    typing.id = 'typingIndicator';
+    typing.innerHTML = `
+      <div class="msg-avatar ai">✈</div>
+      <div class="typing-bubble">
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+        <div class="typing-dot"></div>
+      </div>
+    `;
+    messagesEl.appendChild(typing);
+    messagesEl.scrollTop = messagesEl.scrollHeight;
+  }
+
+  // Remove typing indicator
+  function removeTyping() {
+    const t = document.getElementById('typingIndicator');
+    if (t) t.remove();
+  }
+
+  // Update agent sidebar
+  function updateAgentSidebar(agent) {
+    // Remove active from all
+    document.querySelectorAll('.agent-card').forEach(c => c.classList.remove('active'));
+
+    if (agent && agentCounts[agent] !== undefined) {
+      agentCounts[agent]++;
+      document.getElementById(`count-${agent}`).textContent = agentCounts[agent];
+      document.getElementById(`agent-${agent}`)?.classList.add('active');
+    }
+  }
+
+  // Send message
+  async function sendMessage() {
+    const input = document.getElementById('messageInput');
+    const message = input.value.trim();
+    if (!message || !userId) return;
+
+    // Clear input
+    input.value = '';
+    input.style.height = 'auto';
+
+    // Disable send button
+    document.getElementById('sendBtn').disabled = true;
+
+    // Add user message
+    addMessage('user', message);
+
+    // Show typing
+    showTyping();
+
+    try {
+      const res = await fetch(`${API_BASE}/api/chat`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ user_id: userId, message })
+      });
+
+      const data = await res.json();
+      removeTyping();
+
+      // Update sidebar
+      updateAgentSidebar(data.agent);
+
+      // Add AI response
+      addMessage('ai', data.response, data.agent);
+
+    } catch (e) {
+      removeTyping();
+      addMessage('ai', '⚠️ Could not connect to the server. Please make sure the API is running on localhost:8000.');
+    }
+
+    // Re-enable send button
+    document.getElementById('sendBtn').disabled = false;
+    input.focus();
+  }
+</script>
+</body>
+</html>

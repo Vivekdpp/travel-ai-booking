@@ -32,8 +32,8 @@ app = FastAPI(
 # CORS middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[settings.frontend_url, "http://localhost:3000", "http://localhost:8000"],
-    allow_credentials=True,
+    allow_origins=["*"],
+    allow_credentials=False,
     allow_methods=["*"],
     allow_headers=["*"],
 )
@@ -106,6 +106,7 @@ async def health_check():
 
 # ==================== User Endpoints ====================
 
+# ==================== User Endpoints ====================
 @app.post("/api/users", response_model=UserProfile)
 async def create_user(user: UserCreate):
     """Create a new user"""
@@ -118,11 +119,16 @@ async def create_user(user: UserCreate):
         
         user_data = await db.get_user(user_id)
         
+        # Parse preferences if it's a string
+        preferences = user_data["preferences"]
+        if isinstance(preferences, str):
+            preferences = json.loads(preferences)
+        
         return {
             "user_id": user_id,
             "email": user_data["email"],
             "name": user_data["name"],
-            "preferences": user_data["preferences"],
+            "preferences": preferences,
             "created_at": user_data["created_at"].isoformat() if user_data["created_at"] else None
         }
     except Exception as e:
@@ -137,11 +143,16 @@ async def get_user(user_id: int):
         if not user:
             raise HTTPException(status_code=404, detail="User not found")
         
+        # Parse preferences if it's a string
+        preferences = user["preferences"]
+        if isinstance(preferences, str):
+            preferences = json.loads(preferences)
+        
         return {
             "user_id": user_id,
             "email": user["email"],
             "name": user["name"],
-            "preferences": user["preferences"],
+            "preferences": preferences,
             "created_at": user["created_at"].isoformat() if user["created_at"] else None
         }
     except Exception as e:
