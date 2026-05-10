@@ -17,6 +17,7 @@ from src.config import settings
 from src.database import db, init_db, close_db
 from src.embeddings import kb, init_kb
 from src.orchestrator import orchestrator
+from src.langchain_orchestrator import langchain_orchestrator
 
 # Configure logging
 logging.basicConfig(level=settings.log_level)
@@ -60,6 +61,7 @@ async def shutdown():
 class ChatRequest(BaseModel):
     user_id: int
     message: str
+    mode: str = "custom"
     conversation_id: Optional[str] = None
 
 class ChatResponse(BaseModel):
@@ -165,10 +167,16 @@ async def get_user(user_id: int):
 async def chat(request: ChatRequest):
     """Send a message to the agent system"""
     try:
-        result = await orchestrator.handle_user_request(
-            user_id=request.user_id,
-            user_message=request.message
-        )
+        if request.mode == "langchain":
+            result = await langchain_orchestrator.handle_user_request(
+                user_id=request.user_id,
+                user_message=request.message
+            )
+        else:
+            result = await orchestrator.handle_user_request(
+                user_id=request.user_id,
+                user_message=request.message
+            )
         
         return {
             "user_id": request.user_id,

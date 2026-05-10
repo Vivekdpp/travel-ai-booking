@@ -105,7 +105,52 @@
     background: #4ade80;
     animation: pulse 2s infinite;
   }
-
+  .mode-toggle {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 12px;
+  padding: 10px 16px;
+  background: var(--bg);
+  border-radius: 10px;
+  border: 1px solid var(--border);
+  }
+.mode-label {
+  font-size: 12px;
+  font-weight: 700;
+  color: var(--text-muted);
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  }
+.toggle-group {
+  display: flex;
+  gap: 4px;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  padding: 3px;
+  }
+.toggle-btn {
+  padding: 6px 14px;
+  border-radius: 6px;
+  border: none;
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  background: transparent;
+  color: var(--text-muted);
+  font-family: 'DM Sans', sans-serif;
+  transition: all 0.2s;
+  }
+.toggle-btn.active {
+  background: var(--rbc-blue);
+  color: white;
+  }
+.mode-desc {
+  font-size: 11px;
+  color: var(--text-muted);
+  font-style: italic;
+  }
   @keyframes pulse {
     0%, 100% { opacity: 1; }
     50% { opacity: 0.4; }
@@ -836,6 +881,18 @@
 
     <!-- Input -->
     <div class="input-area">
+      <div class="mode-toggle">
+        <span class="mode-label">Framework:</span>
+        <div class="toggle-group">
+          <button class="toggle-btn active" id="btn-custom" onclick="setMode('custom')">
+            ⚙️ Custom
+          </button>
+          <button class="toggle-btn" id="btn-langchain" onclick="setMode('langchain')">
+            🦜 LangChain
+          </button>
+        </div>
+        <span class="mode-desc" id="modeDesc">Custom agentic framework</span>
+      </div>
       <div class="input-wrapper">
         <textarea
           id="messageInput"
@@ -854,6 +911,33 @@
 </div>
 
 <script>
+  let currentMode = 'custom';
+
+function setMode(mode) {
+  currentMode = mode;
+  document.getElementById('btn-custom')
+    .classList.toggle('active', mode === 'custom');
+  document.getElementById('btn-langchain')
+    .classList.toggle('active', mode === 'langchain');
+  const desc = document.getElementById('modeDesc');
+  desc.textContent = mode === 'custom'
+    ? 'Custom agentic framework (base_agent.py)'
+    : 'LangChain + LangGraph framework';
+  addSystemMessage(
+    mode === 'custom'
+      ? '⚙️ Switched to Custom Framework'
+      : '🦜 Switched to LangChain + LangGraph'
+  );
+}
+
+function addSystemMessage(text) {
+  const messagesEl = document.getElementById('messages');
+  const div = document.createElement('div');
+  div.style.cssText = 'text-align:center;padding:8px;font-size:11px;color:var(--text-muted);';
+  div.textContent = text;
+  messagesEl.appendChild(div);
+  messagesEl.scrollTop = messagesEl.scrollHeight;
+}
   const API_BASE = 'http://localhost:8000';
   let userId = null;
   let userName = '';
@@ -1024,7 +1108,7 @@
       const res = await fetch(`${API_BASE}/api/chat`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ user_id: userId, message })
+        body: JSON.stringify({ user_id: userId, message, mode:currentMode })
       });
 
       const data = await res.json();

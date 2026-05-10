@@ -3,17 +3,19 @@ Agent Orchestrator for TravelAI Booking System
 Coordinates all agents and routes user requests to appropriate handlers
 """
 
-from typing import Dict, Optional
+from typing import Dict, Optional #Python tools for type hints, dict=dictionary type, Optional-can be none or a value
 from src.agents.search_agent import SearchAgent
 from src.agents.booking_agent import BookingAgent
 from src.agents.itinerary_agent import ItineraryAgent
 from src.agents.recommendation_agent import RecommendationAgent
-from src.embeddings import kb
-from src.database import db
+from src.embeddings import kb #import the knowledge base (kb=Chroma vector database instance)
+from src.database import db #import the database (db=PostgreSQL connection)
 
 
 class Orchestrator:
-    """Coordinates all agents and manages multi-agent workflows"""
+    """Coordinates all agents and manages multi-agent workflows
+       It decides who handle what, like a traffic controller
+    """
     
     def __init__(self):
         self.search_agent = SearchAgent()
